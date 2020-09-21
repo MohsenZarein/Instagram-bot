@@ -7,7 +7,7 @@ def Unfollow_Query(data):
     delete_from_followings_sql = """DELETE FROM followings
                                      WHERE user_id=?"""
 
-    insert_into_unfollowed_query = """INSERT INTO unfollowed(owner_id,owner_username,username,user_id,date)
+    insert_into_unfollowed_sql = """INSERT INTO unfollowed(owner_id,owner_username,username,user_id,date)
                                         VALUES(?,?,?,?,?)"""
 
     connection = Create_Connection(data[1])
@@ -21,7 +21,7 @@ def Unfollow_Query(data):
             connection.commit()
 
             # Insert into unfollowed
-            cursor.execute(insert_into_unfollowed_query,data)
+            cursor.execute(insert_into_unfollowed_sql,data)
             connection.commit
 
             result = {
@@ -53,6 +53,9 @@ def Unfollow_Query(data):
                     "status":"db_error"
                 }
                 return result
+        
+        finally:
+            connection.close()
 
     else:
         result = {

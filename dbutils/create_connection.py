@@ -66,11 +66,27 @@ def Create_Tables(connection):
                                         date text
                                     ); """
 
+    sql_create_tags_table = """ CREATE TABLE IF NOT EXISTS tags (
+                                        owner_id text,
+                                        owner_username text ,
+                                        tag text,
+                                        date text
+                                    ); """
     
+    sql_create_Unfollowedtags_table = """ CREATE TABLE IF NOT EXISTS Unfollowedtags (
+                                        owner_id text,
+                                        owner_username text ,
+                                        tag text,
+                                        date text
+                                    ); """
+
+
     try:
         cursor = connection.cursor()
         cursor.execute(sql_create_followings_table)
         cursor.execute(sql_create_unfollowed_table)
+        cursor.execute(sql_create_tags_table)
+        cursor.execute(sql_create_Unfollowedtags_table)
         return True
     except Error as err:
         print(err)
