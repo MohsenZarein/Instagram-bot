@@ -1,0 +1,11 @@
+a/
+avangco-followers.json
+bot.py
+*.json
+.venv
+.vscode
+LOGS/
+__pycache__/
+
+
+
