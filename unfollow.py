@@ -81,6 +81,8 @@ def Unfollow(api,amount):
                 else:
                     print("This user hasn't reached to specified time for unfollow . skipping ...")
                     sleep(5)
+                    print("There is not any other users in your followings who has been reached to the sepecific time to unfollow !")
+                    break
 
             except ClientError as err:
                 if err.code == 404:
