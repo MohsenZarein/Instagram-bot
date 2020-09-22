@@ -10,7 +10,7 @@ from datetime import datetime
 from time import sleep
 import argparse
 import random
-import json
+
 
 def Unfollow(api,amount):
 
@@ -109,13 +109,11 @@ if __name__ == "__main__":
                 username=args.username,
                 password=args.password
     )
-    """
+    
     Unfollow(
             api=api,
             amount=args.amount
-    )"""
+    )
 
-    res = api.friendships_pending()
-    with open('/home/mohsen/VSCode/instagram_private_api/suggested-users.json','w') as fout:
-            json.dump(res,fout,indent=4,sort_keys=True)
+    
 

@@ -42,14 +42,14 @@ def Follow_suggested_users(api,amount,set_do_like):
 
     counter = 0
     if suggested_users:
+
+        my_followings = Get_followings_query(me['id'],me['username'])
+
         for user in suggested_users:
+    
             if counter >= amount :
                 print("\nFinished following suggested users ...\n")
                 break
-
-            print("\n")
-            print('Following   [[ username:{0}  full_name:{1} ]] ...'.format(user['user']['username'],user['user']['full_name']))
-            sleep(5)
 
             try:
                 data = (me['id'],me['username'],user['user']['username'],user['user']['pk'],)
@@ -57,7 +57,6 @@ def Follow_suggested_users(api,amount,set_do_like):
 
                 if res1['status'] == "ok":
 
-                    my_followings = Get_followings_query(me['id'],me['username'])
 
                     if  my_followings['status'] == "ok":
                         
@@ -68,9 +67,13 @@ def Follow_suggested_users(api,amount,set_do_like):
                                 break
 
                         if flag == False:
-                            print("You have already followed this user . skipping ...")
-                            sleep(5)
+                            #You have already followed this user
+                            continue
                         else:
+                            print("\n")
+                            print('Following   [[ username:{0}  full_name:{1} ]] ...'.format(user['user']['username'],user['user']['full_name']))
+                            sleep(5)
+
                             status = Follow_by_id(
                                                  api=api,
                                                  id=user['user']['pk']
@@ -80,7 +83,6 @@ def Follow_suggested_users(api,amount,set_do_like):
 
                                 counter = counter + 1
                                 print("Followed !")
-                                sleep(5)
 
                                 data = (me['id'],me['username'],user['user']['username'],user['user']['pk'],str(datetime.now()))
                                 res2 = Follow_Query(data)
@@ -92,8 +94,10 @@ def Follow_suggested_users(api,amount,set_do_like):
                                     print("could not save to database !")
                                     sleep(5)
 
-                                print("\n")
-                                sleep(random.randrange(60,70))
+                                if counter % 5 == 0:
+                                    sleep(random.randrange(600,620))
+                                else:
+                                    sleep(random.randrange(60,70))
 
                                 if set_do_like == True:
 
@@ -114,13 +118,11 @@ def Follow_suggested_users(api,amount,set_do_like):
                     
                     else:
                         print("db error ! could not fetch your followings to check")
-                        sleep(5)
+                        return
 
                 elif res1['status'] == "error":
-
-                    print("You have already unfollowed this user once . skipping ...")
-                    print("\n")
-                    sleep(5)
+                    #You have already unfollowed this user once 
+                    continue
 
                 else:
                     

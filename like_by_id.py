@@ -7,7 +7,7 @@ import argparse
 
 def Like_by_id(api,id,amount,is_private=False):
 
-    print("Start liking ...")
+    print("\nStart liking ...")
     sleep(3)
  
     if is_private == False:
@@ -18,11 +18,12 @@ def Like_by_id(api,id,amount,is_private=False):
                                         api=api,
                                         id=id
                 )
-
-        sleep(random.randrange(50,60))
-        print("Finished getting posts .")
     
         if posts:
+            
+            sleep(random.randrange(50,60))
+            print("Finished getting posts .")
+
             for post in posts[:amount]:
                 try:
                     print("Liking one of {0} posts ...".format(id))
@@ -42,7 +43,7 @@ def Like_by_id(api,id,amount,is_private=False):
                     if err.code == 400:
                         print(err)
                 except Exception as err:
-                    print(err+" Exiting ...")
+                    print(err)
                     sys.exit()
         else:
             print("User {0} has no posts ...".format(id))

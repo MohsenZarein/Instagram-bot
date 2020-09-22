@@ -29,21 +29,24 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
         if not target_user_id:
             print('Encountered error while getting user info')
             return
+
         sleep(random.randrange(60,70))
+
         print("Gettings all posts ...")
         posts = Get_media_ids_of_a_user(
                                         api=api,
                                         id=target_user_id
                 )[:num_of_posts]
 
-        sleep(random.randrange(50,60))
-        print("Finished getting posts .")
     except ClientError as err:
         print(err)
         sys.exit()
 
     
     if posts:
+
+        sleep(random.randrange(50,60))
+        print("Finished getting posts .")
         
         me = Get_info_by_username(
                                   api=api,
@@ -53,6 +56,8 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
         if not me:
             print('Encountered error while getting user info')
             return
+        
+        sleep(random.randrange(50,60))
 
         for post in posts:
             try:
@@ -63,27 +68,28 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
             except ClientError as err:
                 print(err)
                 sys.exit()
+            
+            sleep(random.randrange(50,60))
 
             counter = 0
             if users:
+
+                my_followings = Get_followings_query(me['id'],me['username'])
+
                 for user in users:
+                
                     if counter >= num_of_likers_each_post :
                         print("\n")
                         print("Finished following users of this post , going for next post ....")
                         print("\n")
+                        sleep(random.randrange(100,120))
                         break
-
-                    print("\n")
-                    print('Following [ username:{0}  full_name:{1} ] ...'.format(user.get('username'),user.get('full_name')))
-                    sleep(5)
 
                     try:
                         data = (me['id'],me['username'],user['username'],user['id'],)
                         res1 = Check_for_follow_query(data)
 
                         if res1['status'] == "ok":
-
-                            my_followings = Get_followings_query(me['id'],me['username'])
 
                             if  my_followings['status'] == "ok":
                                 
@@ -94,9 +100,13 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
                                         break
 
                                 if flag == False:
-                                    print("You have already followed this user . skipping ...")
-                                    sleep(5)
+                                    #You have already followed this user
+                                    continue
                                 else:
+                                    print("\n")
+                                    print('Following [ username:{0}  full_name:{1} ] ...'.format(user.get('username'),user.get('full_name')))
+                                    sleep(5)
+
                                     status = Follow_by_id(
                                                           api=api,
                                                           id=user.get('id') 
@@ -106,7 +116,6 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
 
                                         counter = counter + 1
                                         print("Followed !")
-                                        sleep(5)
 
                                         data = (me['id'],me['username'],user['username'],user['id'],str(datetime.now()))
                                         res2 = Follow_Query(data)
@@ -118,8 +127,10 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
                                             print("could not save to database !")
                                             sleep(5)
 
-                                        print("\n")
-                                        sleep(random.randrange(60,70))
+                                        if counter % 5 == 0:
+                                            sleep(random.randrange(600,620))
+                                        else:
+                                            sleep(random.randrange(60,70))
 
                                         if set_do_like == True:
 
@@ -140,16 +151,13 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
                             
                             else:
                                 print("db error ! could not fetch your followings to check")
-                                sleep(5)
+                                return
 
                         elif res1['status'] == "error":
-
-                            print("You have already unfollowed this user once . skipping ...")
-                            print("\n")
-                            sleep(5)
+                            #You have already unfollowed this user once 
+                            continue
 
                         else:
-                            
                             print("db error . could not check for follow ")
                             print("\n")
                             sleep(5)

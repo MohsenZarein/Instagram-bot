@@ -78,8 +78,11 @@ def Follow_tags(api,file_name,amount):
         try:
             print("\n")
             print("Following  [[ #{0} ]] ...".format(tag))
+
             result = api.tag_follow(tag)
+
             if result['status'] == 'ok':
+
                 print("Followed !")
                 counter = counter + 1
 
@@ -93,7 +96,11 @@ def Follow_tags(api,file_name,amount):
                     print("could not save to database !")
                     sleep(5)
 
-                sleep(random.randrange(60,70))
+                if counter % 5 == 0:
+                    sleep(random.randrange(600,620))
+                else:
+                    sleep(random.randrange(60,70))
+                    
             else:
                 print("Could not follow << #{0} >>".format(tag))
                 print("\n")
@@ -111,7 +118,6 @@ def Follow_tags(api,file_name,amount):
                 print(err)
         except Exception as err:
             print(err)
-            print("sys.ex")
             sys.exit()
 
 

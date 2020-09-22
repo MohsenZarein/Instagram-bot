@@ -47,26 +47,23 @@ def Follow_user_followers(api,username,amount,set_do_like):
                               id=user_info['id']
                 )
 
-    sleep(3)
+    sleep(random.randrange(60,70))
 
     counter = 0
     if followers:
+
+        my_followings = Get_followings_query(me['id'],me['username'])
+
         for user in followers:
             if counter >= amount :
                 print("\nFinished following users's followers ...\n")
                 break
-
-            print("\n")
-            print('Following [ username:{0}  full_name:{1} ] ...'.format(user.get('username'),user.get('full_name')))
-            sleep(5)
 
             try:
                 data = (me['id'],me['username'],user['username'],user['pk'],)
                 res1 = Check_for_follow_query(data)
 
                 if res1['status'] == "ok":
-
-                    my_followings = Get_followings_query(me['id'],me['username'])
 
                     if  my_followings['status'] == "ok":
                         
@@ -77,9 +74,13 @@ def Follow_user_followers(api,username,amount,set_do_like):
                                 break
 
                         if flag == False:
-                            print("You have already followed this user . skipping ...")
-                            sleep(5)
+                            #You have already unfollowed this user once 
+                            continue
                         else:
+                            print("\n")
+                            print('Following [ username:{0}  full_name:{1} ] ...'.format(user.get('username'),user.get('full_name')))
+                            sleep(5)
+
                             status = Follow_by_id(
                                                  api=api,
                                                  id=user.get('pk')
@@ -89,7 +90,6 @@ def Follow_user_followers(api,username,amount,set_do_like):
 
                                 counter = counter + 1
                                 print("Followed !")
-                                sleep(5)
 
                                 data = (me['id'],me['username'],user['username'],user['pk'],str(datetime.now()))
                                 res2 = Follow_Query(data)
@@ -101,8 +101,11 @@ def Follow_user_followers(api,username,amount,set_do_like):
                                     print("could not save to database !")
                                     sleep(5)
 
-                                print("\n")
-                                sleep(random.randrange(60,70))
+                                if counter % 5 == 0:
+                                    sleep(random.randrange(600,620))
+                                else:
+                                    sleep(random.randrange(60,70))
+                                    
 
                                 if set_do_like == True:
 
@@ -126,10 +129,8 @@ def Follow_user_followers(api,username,amount,set_do_like):
                         sleep(5)
 
                 elif res1['status'] == "error":
-
-                    print("You have already unfollowed this user once . skipping ...")
-                    print("\n")
-                    sleep(5)
+                    #You have already unfollowed this user once 
+                    continue
 
                 else:
                     

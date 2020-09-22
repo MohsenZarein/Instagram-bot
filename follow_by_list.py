@@ -56,10 +56,15 @@ def Follow_by_list(api,list_of_users,amount,set_do_like):
         print('Encountered error while getting your info')
         return
 
+    sleep(random.randrange(60,70))
 
     counter = 0
     if users:
+
+        my_followings = Get_followings_query(me['id'],me['username'])
+
         for username in users:
+            
             if counter >= amount :
                 print("\nFinished following users in a list ...\n")
                 sleep(5)
@@ -72,21 +77,16 @@ def Follow_by_list(api,list_of_users,amount,set_do_like):
 
             if not user:
                 print('Encountered error while getting user info')
-                sleep(30)
+                sleep(random.randrange(30,40))
                 continue
 
-
-            print("\n")
-            print('Following [ username: {0}  full_name: {1} ] ...'.format(user.get('username'),user.get('full_name')))
-            sleep(5)
+            sleep(random.randrange(60,70))
 
             try:
                 data = (me['id'],me['username'],user['username'],user['id'],)
                 res1 = Check_for_follow_query(data)
 
                 if res1['status'] == "ok":
-
-                    my_followings = Get_followings_query(me['id'],me['username'])
 
                     if  my_followings['status'] == "ok":
                         
@@ -97,9 +97,13 @@ def Follow_by_list(api,list_of_users,amount,set_do_like):
                                 break
 
                         if flag == False:
-                            print("You have already followed this user . skipping ...")
-                            sleep(5)
+                            #You have already followed this user
+                            continue
                         else:
+                            print("\n")
+                            print('Following [ username: {0}  full_name: {1} ] ...'.format(user.get('username'),user.get('full_name')))
+                            sleep(5)
+
                             status = Follow_by_id(
                                                   api=api,
                                                   id=user.get('id')
@@ -109,7 +113,11 @@ def Follow_by_list(api,list_of_users,amount,set_do_like):
 
                                 counter = counter + 1
                                 print("Followed !")
-                                sleep(5)
+
+                                if counter % 5 == 0:
+                                    sleep(random.randrange(60,70))
+                                else:
+                                    sleep(5)
 
                                 data = (me['id'],me['username'],user['username'],user['id'],str(datetime.now()))
                                 res2 = Follow_Query(data)
@@ -143,13 +151,11 @@ def Follow_by_list(api,list_of_users,amount,set_do_like):
                     
                     else:
                         print("db error ! could not fetch your followings to check")
-                        sleep(5)
+                        return
 
                 elif res1['status'] == "error":
-
-                    print("You have already unfollowed this user once . skipping ...")
-                    print("\n")
-                    sleep(5)
+                    #You have already unfollowed this user once
+                    continue
 
                 else:
                     
@@ -158,12 +164,13 @@ def Follow_by_list(api,list_of_users,amount,set_do_like):
                     sleep(5)
 
             except ClientError as err:
+
                 if err.code == 400:
                     print("Bad Request: You have already followed this user . skipping ...")
-                    sleep(7)
+                    sleep(random.randrange(60,70))
                 elif err.code == 404:
                     print("Could not find this user . skipping ...")
-                    sleep(7)
+                    sleep(random.randrange(60,70))
                 else:
                     print(err)
                     

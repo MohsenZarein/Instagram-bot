@@ -8,7 +8,7 @@ import argparse
 
 def Like_by_username(api,username,amount):
 
-    print("Start liking ...")
+    print("\nStart liking ...")
     sleep(3)
 
     user_info = Get_info_by_username(
@@ -24,47 +24,41 @@ def Like_by_username(api,username,amount):
 
     user_id = user_info.get('id')
 
-    if user_info.get('is_private') == False:
+    print("Gettings all posts ...")
+    posts = Get_media_ids_of_a_user(
+                                    api=api,
+                                    id=user_id
+            )
 
-        print("Gettings all posts ...")
-        posts = Get_media_ids_of_a_user(
-                                        api=api,
-                                        id=user_id
-                )
+    if posts :
 
         sleep(random.randrange(50,60))
         print("Finished getting posts .")
 
-        if posts :
-            for post in posts[:amount]:
-                try:
-                    print("Liking one of {0} posts ...".format(user_id))
-                    sleep(5)
-                    result = api.post_like(media_id=post)
-                    if result['status'] == 'ok':
-                        print("Liked Image !")
-                        print("\n")
-                        sleep(random.randrange(60,70))
-                    else:
-                        print("Couldn't like the image !")
-                        print("\n")
-                        sleep(random.randrange(60,70))
-                except ClientError as err:
-                    if err.code == 404:
-                        print(err)
-                    if err.code == 400:
-                        print(err)
-                except Exception as err:
-                    print(err+"Exiting ...")
-                    sys.exit()
-
-        else:
-            print("This user has not any posts")
+        for post in posts[:amount]:
+            try:
+                print("Liking one of {0} posts ...".format(user_id))
+                sleep(5)
+                result = api.post_like(media_id=post)
+                if result['status'] == 'ok':
+                    print("Liked Image !")
+                    print("\n")
+                    sleep(random.randrange(60,70))
+                else:
+                    print("Couldn't like the image !")
+                    print("\n")
+                    sleep(random.randrange(60,70))
+            except ClientError as err:
+                if err.code == 404:
+                    print(err)
+                if err.code == 400:
+                    print(err)
+            except Exception as err:
+                print(err+"Exiting ...")
+                sys.exit()
 
     else:
-        print("Account {0} is Privte".format(username))
-        sleep(5)
-
+        print("This user has not any posts OR the account is private !")
 
 
 if __name__ == "__main__":

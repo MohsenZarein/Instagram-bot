@@ -1,6 +1,7 @@
 a/
 avangco-followers.json
 bot.py
+bot_app.py
 *.json
 .venv
 .vscode
