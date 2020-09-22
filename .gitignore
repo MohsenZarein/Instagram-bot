@@ -1,12 +1,11 @@
 a/
 avangco-followers.json
 bot.py
-bot_app.py
 *.json
 .venv
 .vscode
 LOGS/
 __pycache__/
-
+bot_app.py
 
 
