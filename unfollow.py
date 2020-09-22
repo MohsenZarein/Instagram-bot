@@ -29,11 +29,12 @@ def Unfollow(api,amount):
     
     me_id = me['id']
     my_followings = Get_followings_query(me['id'],me['username'])
-    my_followings['followings'] = my_followings['followings'][::-1]
+    #my_followings['followings'] = my_followings['followings'][::-1]
 
     if my_followings['status'] == "ok":
-
-        for user in my_followings['followings'][:amount]:
+        
+        counter = 0
+        for user in my_followings['followings']:
 
             try:
                 print("Unfollowing [ {0} ] ...".format(user[2]))
@@ -42,13 +43,15 @@ def Unfollow(api,amount):
                 now = datetime.now()
                 delta = now - date_of_follow
 
-                if delta.seconds > 900:
+                if delta.days > 4:
                     
                     try:
                         result = api.friendships_destroy(user[3])
                         if result['status'] == 'ok':
 
                             print("Unfollowed !")
+                            sleep(3)
+                            counter = counter + 1
 
                             data = (me['id'],me['username'],user[2],user[3],str(datetime.now()))
                             res = Unfollow_Query(data)
@@ -58,8 +61,16 @@ def Unfollow(api,amount):
                             else:
                                 print('Could not save into database !')
                                 
-                            print("\n")
-                            sleep(random.randrange(70,80))
+                            
+                            if counter >= amount:
+                                print("Unfollowed {0} users !".format(amount))
+                                break
+                            
+                            if counter % 5 == 0:
+                                sleep(random.randrange(600,620))
+                            else:
+                                sleep(random.randrange(70,80))
+
                         else:
                             print("Couldn't Unfollow !")
                             sleep(random.randrange(70,80))
@@ -86,6 +97,8 @@ def Unfollow(api,amount):
             except Exception as err:
                 print(err)
                 sys.exit()
+
+        print("Finished unfollowing !")
 
     else:
         print('Database error ! Could not fetch your followings .')
