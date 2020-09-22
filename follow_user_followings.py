@@ -17,9 +17,6 @@ import random
 
 def Follow_user_followings(api,username,amount,set_do_like):
 
-    print("\nStart following user's followings ...")
-    sleep(3)
-
     user_info = Get_info_by_username(
                                      api=api,
                                      username=username
@@ -28,12 +25,16 @@ def Follow_user_followings(api,username,amount,set_do_like):
     if not user_info:
         print('Encountered error while getting user info')
         return
+
     """
     if user_info['is_private'] == True:
-        print("You can't get this users's followings , cause the account is private")
+        print("You can't get {0} followings , cause the account is private".format(user_info['username']))
         return
     """
 
+    print("\nStart following {0} followers ...".format(user_info['username']))
+    sleep(3)
+    
     sleep(random.randrange(60,70))
 
     me = Get_info_by_username(

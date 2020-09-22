@@ -16,6 +16,8 @@ def Get_followers(api,id):
                 #break
             data = api.user_followers(id,rank_token=api.generate_uuid(),max_id=next_max_id)
             followers.extend(data.get('users',[]))
+            if len(followers) >= 1500:
+                break
             next_max_id = data.get('next_max_id')
             sleep(5)
 

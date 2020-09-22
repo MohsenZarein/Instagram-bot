@@ -12,7 +12,7 @@ def Get_followings(api,id):
         data = api.user_following(id,rank_token=api.generate_uuid())
         next_max_id = data.get('next_max_id')
         while next_max_id:
-            if next_max_id >= 2100:
+            if next_max_id >= 1500:
                 break
             data = api.user_following(id,rank_token=api.generate_uuid(),max_id=next_max_id)
             followings.extend(data.get('users',[]))

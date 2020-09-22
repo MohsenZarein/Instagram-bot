@@ -17,9 +17,6 @@ import random
 
 def Follow_user_followers(api,username,amount,set_do_like):
 
-    print("\nStart following user's followers ...")
-    sleep(3)
-
     user_info = Get_info_by_username(
                                      api=api,
                                      username=username
@@ -28,6 +25,9 @@ def Follow_user_followers(api,username,amount,set_do_like):
     if not user_info:
         print('Encountered error while getting user info')
         return
+
+    print("\nStart following {0} followers ...".format(user_info['username']))
+    sleep(3)
 
     sleep(random.randrange(60,70))
 
