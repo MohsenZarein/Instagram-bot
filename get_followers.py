@@ -1,22 +1,37 @@
 from login import Login
 from login import ClientError
+from login import to_json
+from get_info_by_username import Get_info_by_username
 from time import sleep
 import argparse
+import json
+import os
 
-def Get_followers(api,id):
+def Get_followers(api,username,target_username,target_id):
 
     print("\nStart getting followers ...")
 
     try:
         followers = []
-        data = api.user_followers(id,rank_token=api.generate_uuid())
-        next_max_id = data.get('next_max_id')
+        
+        if target_id:
+            id = target_id
+            data = api.user_followers(id,rank_token=api.generate_uuid())
+            next_max_id = data.get('next_max_id')
+        else:
+            user_info = Get_info_by_username(
+                                             api=api,
+                                             username=target_username
+            )
+            id = user_info['id']
+            data = api.user_followers(id,rank_token=api.generate_uuid())
+            next_max_id = data.get('next_max_id')
+
         while next_max_id:
-            #if next_max_id >= 2100:
-                #break
+            
             data = api.user_followers(id,rank_token=api.generate_uuid(),max_id=next_max_id)
             followers.extend(data.get('users',[]))
-            if len(followers) >= 1500:
+            if len(followers) >= 1900:
                 break
             next_max_id = data.get('next_max_id')
             sleep(5)
@@ -25,23 +40,26 @@ def Get_followers(api,id):
         print(len(followers))
         print("Finished !")
         sleep(7)
-        return followers
 
-        """ code for saving grabed followers in file :
-        with open('/home/mohsen/VSCode/instagram_private_api/avangco-followers.json','w') as fout:
+        cwd = os.getcwd()
+        dest_file_path = cwd + '/LOGS/{0}/{1}-followers.json'.format(username,target_username)
+        with open(dest_file_path,'w') as fout:
             json.dump(followers,fout,default=to_json)
-        """
+        
+        return followers
+        
 
     except Exception as err:
         print(err)
         print(len(followers))
         sleep(7)
-        return followers
-
-        """ code for saving grabed followers in file :
-        with open('/home/mohsen/VSCode/instagram_private_api/avangco-followers.json','w') as fout:
+        
+        cwd = os.getcwd()
+        dest_file_path = cwd + '/LOGS/{0}/{1}-followers.json'.format(username,target_username)
+        with open(dest_file_path,'w') as fout:
             json.dump(followers,fout,default=to_json)
-        """
+        
+        return followers
 
 
 
@@ -53,9 +71,15 @@ if __name__ == "__main__":
     parser.add_argument('-settings', '--settings', dest='settings_file_path', type=str, required=True)
     parser.add_argument('-u', '--username', dest='username', type=str, required=True)
     parser.add_argument('-p', '--password', dest='password', type=str, required=True)
-    parser.add_argument('-t', '--target_id', dest='target_id', type=str, required=True)
+    parser.add_argument('-tu', '--target_username', dest='target_username', type=str, required=True)
+    parser.add_argument('-ti', '--target_id', dest='target_id', type=str, required=False)
 
     args = parser.parse_args()
+
+    if args.target_id:
+        target_id = args.target_id
+    else:
+        target_id = None
 
     api = Login(
                 settings_file_path=args.settings_file_path,
@@ -65,7 +89,9 @@ if __name__ == "__main__":
 
     followers = Get_followers(
                               api=api,
-                              id=args.target_id
+                              username=args.username,
+                              target_username=args.target_username,
+                              target_id=target_id
     )
 
     print(followers)

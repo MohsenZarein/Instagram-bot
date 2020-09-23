@@ -1,5 +1,6 @@
 from login import Login
 from login import ClientError
+from login import from_json
 from get_info_by_username import Get_info_by_username
 from get_followers import Get_followers
 from follow_by_id import Follow_by_id
@@ -13,6 +14,8 @@ from datetime import datetime
 from time import sleep
 import argparse
 import random
+import json
+import os
 
 
 def Follow_user_followers(api,username,amount,set_do_like):
@@ -42,10 +45,29 @@ def Follow_user_followers(api,username,amount,set_do_like):
     
     sleep(random.randrange(60,70))
 
-    followers = Get_followers(
-                              api=api,
-                              id=user_info['id']
-                )
+    followers_file_path = os.getcwd() + '/LOGS/{0}/{1}-followers.json'.format(args.username,user_info['username'])
+
+    if os.path.isfile(followers_file_path):
+
+        with open(followers_file_path,'r') as fin:
+            try:
+                followers = json.load(fin,object_hook=from_json)
+            except Exception:
+                followers = Get_followers(
+                                        api=api,
+                                        username=args.username,
+                                        target_username=user_info['username'],
+                                        target_id=user_info['id']
+                    )
+
+    
+    else:
+        followers = Get_followers(
+                                    api=api,
+                                    username=args.username,
+                                    target_username=user_info['username'],
+                                    target_id=user_info['id']
+                    )
 
     sleep(random.randrange(60,70))
 
