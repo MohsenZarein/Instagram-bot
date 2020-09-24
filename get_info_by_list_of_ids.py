@@ -78,6 +78,7 @@ def get_data_by_id(api,list_of_ids):
             print("KeyboardInterrupt !!!")
             with open(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username),'w',encoding='UTF-8') as fout:
                 json.dump(DATA,fout,indent=4)
+            return
 
 
 if __name__ == "__main__":
