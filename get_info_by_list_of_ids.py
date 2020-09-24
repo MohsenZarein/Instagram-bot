@@ -52,16 +52,26 @@ def get_data_by_id(api,list_of_ids):
                 }
                 DATA.append(info)
                 counter = counter + 1
-                if counter == 1000:
-                    sleep(random.randrange(300,320))
+
+                if counter % 50 == 0:
+                    sleep(random.randrange(50,60))
+                else:
+                    sleep(1.5)
                     
+            except KeyboardInterrupt:
+                print("KeyboardInterrupt")
+                with open(os.getcwd() + '/info-{0}.json'.format(counter),'w',encoding='UTF-8') as fout:
+                    json.dump(DATA,fout,indent=4)
+                
+                return
             except Exception as err:
                 print(err)
-                with open(os.getcwd() + '/info.json','w',encoding='UTF-8') as fout:
+                with open(os.getcwd() + '/info-{0}.json'.format(counter),'w',encoding='UTF-8') as fout:
                     json.dump(DATA,fout,indent=4)
+                sleep(1200)
 
-
-        with open(os.getcwd() + '/info.json','w',encoding='UTF-8') as fout:
+                
+        with open(os.getcwd() + '/info-{0}.json'.format(counter),'w',encoding='UTF-8') as fout:
             json.dump(DATA,fout,indent=4)
 
 
