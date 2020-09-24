@@ -36,43 +36,48 @@ def get_data_by_id(api,list_of_ids):
 
         DATA = []
         counter = 0
-        for id in ids:
-            try:
-                info = {}
-                res = api.user_info(id)
-                info = {
-                    "id":res['user']['pk'],
-                    "username":res['user']['username'],
-                    "full_name":res['user']['full_name'],
-                    "bio":res['user']['biography'],
-                    "follower_count":res['user']['follower_count'],
-                    "following_count":res['user']['following_count'],
-                    "media_count":res['user']['media_count'],
-                    "is_private":res['user']['is_private']
-                }
-                DATA.append(info)
-                counter = counter + 1
-
-                if counter % 50 == 0:
-                    sleep(random.randrange(50,60))
-                else:
-                    sleep(1.5)
+        try:
+            
+            for id in ids:
+                try:
+                    info = {}
+                    res = api.user_info(id)
+                    info = {
+                        "id":res['user']['pk'],
+                        "username":res['user']['username'],
+                        "full_name":res['user']['full_name'],
+                        "bio":res['user']['biography'],
+                        "follower_count":res['user']['follower_count'],
+                        "following_count":res['user']['following_count'],
+                        "media_count":res['user']['media_count'],
+                        "is_private":res['user']['is_private']
+                    }
+                    DATA.append(info)
+                    counter = counter + 1
                     
-            except KeyboardInterrupt:
-                print("KeyboardInterrupt")
-                with open(os.getcwd() + '/info-{0}.json'.format(counter),'w',encoding='UTF-8') as fout:
-                    json.dump(DATA,fout,indent=4)
-                
-                return
-            except Exception as err:
-                print(err)
-                with open(os.getcwd() + '/info-{0}.json'.format(counter),'w',encoding='UTF-8') as fout:
-                    json.dump(DATA,fout,indent=4)
-                sleep(1200)
+                    sleep(random.randrange(3,5))
+                        
+                except KeyboardInterrupt:
+                    print("KeyboardInterrupt !!!")
+                    with open(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username),'w',encoding='UTF-8') as fout:
+                        json.dump(DATA,fout,indent=4)
+                    
+                    return
+                except Exception as err:
+                    print(err)
+                    with open(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username),'w',encoding='UTF-8') as fout:
+                        json.dump(DATA,fout,indent=4)
+                    sleep(120)
 
-                
-        with open(os.getcwd() + '/info-{0}.json'.format(counter),'w',encoding='UTF-8') as fout:
-            json.dump(DATA,fout,indent=4)
+                    
+            with open(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username),'w',encoding='UTF-8') as fout:
+                json.dump(DATA,fout,indent=4)
+
+
+        except KeyboardInterrupt:
+            print("KeyboardInterrupt !!!")
+            with open(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username),'w',encoding='UTF-8') as fout:
+                json.dump(DATA,fout,indent=4)
 
 
 if __name__ == "__main__":
