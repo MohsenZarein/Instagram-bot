@@ -59,6 +59,7 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
         
         sleep(random.randrange(50,60))
 
+        ClientErrorCounter = 0
         for post in posts:
             try:
                 users = Get_likers(
@@ -163,6 +164,10 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
                             sleep(5)
 
                     except ClientError as err:
+                        ClientErrorCounter = ClientErrorCounter + 1
+                        if ClientErrorCounter == 6:
+                            print("Reached maximum ClientError . Return")
+                            return
                         if err.code == 400:
                             print("Bad Request: You have already followed this user . skipping ...")
                             sleep(7)
