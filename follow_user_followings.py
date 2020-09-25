@@ -166,16 +166,18 @@ def Follow_user_followings(api,username,amount,set_do_like):
 
             except ClientError as err:
                 if err.code == 400:
-                    print("Bad Request: You have already followed this user . skipping ...")
-                    sleep(7)
+                    print("Bad Request: ",err)
+                    sleep(random.randrange(60,70))
                 elif err.code == 404:
-                    print("Could not find this user . skipping ...")
-                    sleep(7)
+                    print(err)
+                    sleep(random.randrange(60,70))
                 else:
                     print(err)
+                    sleep(random.randrange(60,70))
                     
             except Exception as err:
-                print(err)
+                print("None client error: ",err)
+                sleep(random.randrange(30,40))
     
     else:
         print("Could not get any user . list is empty ...")
