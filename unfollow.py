@@ -34,6 +34,7 @@ def Unfollow(api,amount):
     if my_followings['status'] == "ok":
         
         counter = 0
+        ClientErrorCounter = 0
         for user in my_followings['followings']:
 
             try:
@@ -85,6 +86,10 @@ def Unfollow(api,amount):
                     break
 
             except ClientError as err:
+                ClientErrorCounter = ClientErrorCounter + 1
+                if ClientErrorCounter == 6:
+                    print("Reached maximum ClientError . Return")
+                    return
                 if err.code == 404:
                     print("Couldn't find {0} in your followings . skipping ...".format(user['username']))
                     print("\n")

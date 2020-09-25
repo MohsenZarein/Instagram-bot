@@ -76,6 +76,7 @@ def Follow_user_followers(api,username,amount,set_do_like):
 
         my_followings = Get_followings_query(me['id'],me['username'])
 
+        ClientErrorCounter = 0
         for user in followers:
             if counter >= amount :
                 print("\nFinished following users's followers ...\n")
@@ -161,6 +162,10 @@ def Follow_user_followers(api,username,amount,set_do_like):
                     sleep(5)
 
             except ClientError as err:
+                ClientErrorCounter =  ClientErrorCounter + 1
+                if ClientErrorCounter == 6:
+                    print("Reached maximum ClientError . Return")
+                    return
                 if err.code == 400:
                     print("Bad Request: ",err)
                     sleep(random.randrange(60,70))
