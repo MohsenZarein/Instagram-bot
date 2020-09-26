@@ -1,5 +1,10 @@
 from login import Login
 from login import ClientError
+from instagram_private_api import (ClientChallengeRequiredError,
+                                   ClientCheckpointRequiredError,
+                                   ClientSentryBlockError,
+                                   ClientThrottledError
+)
 from get_info_by_username import Get_info_by_username
 
 from dbutils.follow_tags_query import Follow_tags_query
@@ -71,6 +76,7 @@ def Follow_tags(api,file_name,amount):
     sleep(random.randrange(60,70))
 
     counter = 0
+    ClientErrorCounter = 0
     for tag in tags:
         if counter >= amount:
             print("Reached maximun amount of follow tags .")
@@ -106,19 +112,34 @@ def Follow_tags(api,file_name,amount):
                 print("\n")
                 sleep(random.randrange(60,70))
 
-                
+        except ClientChallengeRequiredError as err:
+            print("ClientChallengeRequiredError : ",err)
+            return
+        except ClientCheckpointRequiredError as err:
+            print("ClientCheckpointRequiredError : ",err)
+            return
+        except ClientSentryBlockError as err:
+            print("ClientSentryBlockError : ",err)
+            return
+        except ClientThrottledError as err:
+            print("ClientThrottledError : ",err)
+            return
         except ClientError as err:
+            ClientErrorCounter = ClientErrorCounter + 1
+            if ClientErrorCounter == 6:
+                print("Reached maximum ClientError . Return")
+                return
             if err.code == 404:
-                print("Could not find this tag ! skipping ...")
+                print(err)
                 sleep(random.randrange(60,70))
             elif err.code == 400:
-                print("Bad Request: You have already followed this hashtag . skipping ...")
+                print("Bad Request: ",err)
                 sleep(random.randrange(60,70))
             else:
                 print(err)
+                sleep(random.randrange(60,70))
         except Exception as err:
             print(err)
-            sys.exit()
 
 
     print("Finished ! Followed all tags in file")

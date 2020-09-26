@@ -1,5 +1,10 @@
 from login import Login
 from login import ClientError
+from instagram_private_api import (ClientChallengeRequiredError,
+                                   ClientCheckpointRequiredError,
+                                   ClientSentryBlockError,
+                                   ClientThrottledError
+)
 from get_info_by_username import Get_info_by_username
 from get_media_ids_of_a_user import Get_media_ids_of_a_user
 from get_likers import Get_likers
@@ -40,7 +45,7 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
 
     except ClientError as err:
         print(err)
-        sys.exit()
+        return
 
     
     if posts:
@@ -163,22 +168,36 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
                             print("\n")
                             sleep(5)
 
+                    except ClientChallengeRequiredError as err:
+                        print("ClientChallengeRequiredError : ",err)
+                        return
+                    except ClientCheckpointRequiredError as err:
+                        print("ClientCheckpointRequiredError : ",err)
+                        return
+                    except ClientSentryBlockError as err:
+                        print("ClientSentryBlockError : ",err)
+                        return
+                    except ClientThrottledError as err:
+                        print("ClientThrottledError : ",err)
+                        return
                     except ClientError as err:
                         ClientErrorCounter = ClientErrorCounter + 1
                         if ClientErrorCounter == 6:
                             print("Reached maximum ClientError . Return")
                             return
                         if err.code == 400:
-                            print("Bad Request: You have already followed this user . skipping ...")
-                            sleep(7)
+                            print("Bad Request: ",err)
+                            sleep(random.randrange(60,70))
                         elif err.code == 404:
-                            print("Could not find this user . skipping ...")
-                            sleep(7)
+                            print(err)
+                            sleep(random.randrange(60,70))
                         else:
                             print(err)
+                            sleep(random.randrange(60,70))
                             
                     except Exception as err:
-                        print(err)
+                        print("None client error: ",err)
+                        
             
             else:
                 print("This post has not any likers OR Couln't fetch them . skipping this post ...")

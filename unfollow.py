@@ -1,5 +1,10 @@
 from login import Login
 from login import ClientError
+from instagram_private_api import (ClientChallengeRequiredError,
+                                   ClientCheckpointRequiredError,
+                                   ClientSentryBlockError,
+                                   ClientThrottledError
+)
 from get_info_by_username import Get_info_by_username
 
 from dbutils.get_followings_query import Get_followings_query
@@ -17,27 +22,28 @@ def Unfollow(api,amount):
     print("\nStart unfollowing ...\n")
     sleep(3)
 
-    me = Get_info_by_username(
-                             api=api,
-                             username=args.username
-        )
-    if not me:
-        print('Encountered error while getting user info')
-        return
-    
-    sleep(random.randrange(60,70))
-    
-    me_id = me['id']
-    my_followings = Get_followings_query(me['id'],me['username'])
-    #my_followings['followings'] = my_followings['followings'][::-1]
+    try:
 
-    if my_followings['status'] == "ok":
+        me = Get_info_by_username(
+                                api=api,
+                                username=args.username
+            )
+        if not me:
+            print('Encountered error while getting user info')
+            return
         
-        counter = 0
-        ClientErrorCounter = 0
-        for user in my_followings['followings']:
+        sleep(random.randrange(60,70))
+        
+        me_id = me['id']
+        my_followings = Get_followings_query(me['id'],me['username'])
+        #my_followings['followings'] = my_followings['followings'][::-1]
 
-            try:
+        if my_followings['status'] == "ok":
+            
+            counter = 0
+            ClientErrorCounter = 0
+            for user in my_followings['followings']:
+
                 print("Unfollowing [ {0} ] ...".format(user[2]))
 
                 date_of_follow = Parser.parse(user[4])
@@ -75,8 +81,35 @@ def Unfollow(api,amount):
                         else:
                             print("Couldn't Unfollow !")
                             sleep(random.randrange(70,80))
-                            
+
+
+                    except ClientChallengeRequiredError as err:
+                        print("ClientChallengeRequiredError : ",err)
+                        return
+                    except ClientCheckpointRequiredError as err:
+                        print("ClientCheckpointRequiredError : ",err)
+                        return
+                    except ClientSentryBlockError as err:
+                        print("ClientSentryBlockError : ",err)
+                        return
+                    except ClientThrottledError as err:
+                        print("ClientThrottledError : ",err)
+                        return     
                     except ClientError as err:
+                        ClientErrorCounter = ClientErrorCounter + 1
+                        if ClientErrorCounter == 6:
+                            print("Reached maximum ClientError . Return")
+                            return
+                        if err.code == 404:
+                            print("Couldn't find {0} in your followings . skipping ...".format(user['username']))
+                            sleep(random.randrange(70,80))
+                        elif err.code == 400:
+                            print("Bad Request : ",err)
+                            sleep(random.randrange(70,80))
+                        else:
+                            print(err)
+                            sleep(random.randrange(70,80))
+                    except Exception as err:
                         print(err)
 
                 else:
@@ -85,32 +118,28 @@ def Unfollow(api,amount):
                     print("There is not any other users in your followings who has been reached to the sepecific time to unfollow !")
                     break
 
-            except ClientError as err:
-                ClientErrorCounter = ClientErrorCounter + 1
-                if ClientErrorCounter == 6:
-                    print("Reached maximum ClientError . Return")
-                    return
-                if err.code == 404:
-                    print("Couldn't find {0} in your followings . skipping ...".format(user['username']))
-                    print("\n")
-                    sleep(7)
-                elif err.code == 400:
-                    print(err)
-                    print("\n")
-                    sleep(7)
-                else:
-                    print(err)
-                    sleep(7)
-            except Exception as err:
-                print(err)
-                sys.exit()
 
-        print("Finished unfollowing !")
+            print("Finished unfollowing !")
 
-    else:
-        print('Database error ! Could not fetch your followings .')
+        else:
+            print('Database error ! Could not fetch your followings .')
 
 
+    except ClientChallengeRequiredError as err:
+        print("ClientChallengeRequiredError : ",err)
+        return
+    except ClientCheckpointRequiredError as err:
+        print("ClientCheckpointRequiredError : ",err)
+        return
+    except ClientSentryBlockError as err:
+        print("ClientSentryBlockError : ",err)
+        return
+    except ClientThrottledError as err:
+        print("ClientThrottledError : ",err)
+        return
+    except Exception as err:
+        print(err)
+        return
 
 if __name__ == "__main__":
 

@@ -1,5 +1,10 @@
 from login import Login
 from login import ClientError
+from instagram_private_api import (ClientChallengeRequiredError,
+                                   ClientCheckpointRequiredError,
+                                   ClientSentryBlockError,
+                                   ClientThrottledError
+)
 from follow_by_id import Follow_by_id
 from like_by_id import Like_by_id
 from get_info_by_username import Get_info_by_username
@@ -45,6 +50,7 @@ def Follow_suggested_users(api,amount,set_do_like):
 
         my_followings = Get_followings_query(me['id'],me['username'])
 
+        ClientErrorCounter = 0
         for user in suggested_users:
     
             if counter >= amount :
@@ -130,21 +136,40 @@ def Follow_suggested_users(api,amount,set_do_like):
                     print("\n")
                     sleep(5)
 
+            except ClientChallengeRequiredError as err:
+                print("ClientChallengeRequiredError : ",err)
+                return
+            except ClientCheckpointRequiredError as err:
+                print("ClientCheckpointRequiredError : ",err)
+                return
+            except ClientSentryBlockError as err:
+                print("ClientSentryBlockError : ",err)
+                return
+            except ClientThrottledError as err:
+                print("ClientThrottledError : ",err)
+                return
             except ClientError as err:
+                ClientErrorCounter = ClientErrorCounter + 1
+                if ClientErrorCounter == 6:
+                    print("Reached maximum ClientError . Return")
+                    return
                 if err.code == 400:
-                    print("Bad Request: You have already followed this user . skipping ...")
-                    sleep(7)
+                    print("Bad Request: ",err)
+                    sleep(random.randrange(60,70))
                 elif err.code == 404:
-                    print("Could not find this user . skipping ...")
-                    sleep(7)
+                    print(err)
+                    sleep(random.randrange(60,70))
                 else:
                     print(err)
+                    sleep(random.randrange(60,70))
                     
             except Exception as err:
-                print(err)
+                print("None client error: ",err)
+                
 
     else:
         print("You dont have any suggestions right now")
+
 
 
 if __name__ == "__main__":
