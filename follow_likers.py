@@ -1,9 +1,11 @@
 from login import Login
-from login import ClientError
+from login import from_json
+from login import to_json
 from instagram_private_api import (ClientChallengeRequiredError,
                                    ClientCheckpointRequiredError,
                                    ClientSentryBlockError,
-                                   ClientThrottledError
+                                   ClientThrottledError,
+                                   ClientError
 )
 from get_info_by_username import Get_info_by_username
 from get_media_ids_of_a_user import Get_media_ids_of_a_user
@@ -17,8 +19,11 @@ from dbutils.follow_query import Follow_Query
 
 from datetime import datetime
 from time import sleep
+from pathlib import Path
 import random
 import argparse
+import json
+import os
 
 
 def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like):
@@ -26,11 +31,13 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
     print("\nStart following likers ...\n")
 
     try:
-        target_user_id = Get_info_by_username(
+        target_user = Get_info_by_username(
                                             api=api,
                                             username=username
-                        ).get('id')
+                        )
 
+        target_user_id = target_user.get('id')
+        
         if not target_user_id:
             print('Encountered error while getting user info')
             return
@@ -66,16 +73,46 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
 
         ClientErrorCounter = 0
         for post in posts:
+
+            cwd = os.getcwd()
             try:
-                users = Get_likers(
-                                    api=api,
-                                    media_id=post
-                        )
-            except ClientError as err:
-                print(err)
-                sys.exit()
+                Path(cwd + '/LOGS/{0}'.format(args.username)).mkdir(parents=True, exist_ok=False)
+                path_for_likers_file = cwd + '/LOGS/{0}/{1}-likers-{2}.json'.format(args.username,target_user['username'],post)
+            except FileExistsError:
+                path_for_likers_file = cwd + '/LOGS/{0}/{1}-likers-{2}.json'.format(args.username,target_user['username'],post)
+
+            if os.path.isfile(path_for_likers_file):
+                with open(path_for_likers_file,'r') as fin:
+                    try:
+                        users = json.load(fin,object_hook=from_json)
+                    except Exception:
+                        try:
+                            users = Get_likers(
+                                                api=api,
+                                                media_id=post
+                                    )
+                            with open(path_for_likers_file,'w') as fout:
+                                json.dump(users,fout,default=to_json)
+
+                            sleep(random.randrange(50,60))
+                        except ClientError as err:
+                            print(err)
+                            sys.exit()
+
+            else:
+                try:
+                    users = Get_likers(
+                                        api=api,
+                                        media_id=post
+                            )
+                    with open(path_for_likers_file,'w') as fout:
+                        json.dump(users,fout,default=to_json)
+
+                    sleep(random.randrange(50,60))
+                except ClientError as err:
+                    print(err)
+                    sys.exit()
             
-            sleep(random.randrange(50,60))
 
             counter = 0
             if users:

@@ -5,6 +5,8 @@ import argparse
 
 def Get_likers(api,media_id):
 
+    print("Getting likers ...")
+
     result = api.media_likers(media_id=str(media_id))
 
     if result['status'] == 'ok':
@@ -21,6 +23,7 @@ def Get_likers(api,media_id):
             users.append(data)
         
         sleep(7)
+        print("Finished !")
         return users
     
     else:
