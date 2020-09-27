@@ -1,7 +1,9 @@
 from login import Login
+from login import to_json
 from login import ClientError
 from get_info_by_username import Get_info_by_username
-from login import to_json
+
+from pathlib import Path
 from time import sleep
 import argparse
 import json
@@ -41,7 +43,12 @@ def Get_followings(api,username,target_username,target_id):
         sleep(7)
 
         cwd = os.getcwd()
-        dest_file_path = cwd + '/LOGS/{0}/{1}-followings.json'.format(username,target_username)
+        try:
+            Path(cwd + '/LOGS/{0}'.format(username)).mkdir(parents=True, exist_ok=False)
+            dest_file_path = cwd + '/LOGS/{0}/{1}-followings.json'.format(username,target_username)
+        except FileExistsError:
+            dest_file_path = cwd + '/LOGS/{0}/{1}-followings.json'.format(username,target_username)
+
         with open(dest_file_path,'w') as fout:
             json.dump(followings,fout,default=to_json)
 
@@ -54,7 +61,12 @@ def Get_followings(api,username,target_username,target_id):
         sleep(7)
 
         cwd = os.getcwd()
-        dest_file_path = cwd + '/LOGS/{0}/{1}-followings.json'.format(username,target_username)
+        try:
+            Path(cwd + '/LOGS/{0}'.format(username)).mkdir(parents=True, exist_ok=False)
+            dest_file_path = cwd + '/LOGS/{0}/{1}-followings.json'.format(username,target_username)
+        except FileExistsError:
+            dest_file_path = cwd + '/LOGS/{0}/{1}-followings.json'.format(username,target_username)
+
         with open(dest_file_path,'w') as fout:
             json.dump(followings,fout,default=to_json)
 

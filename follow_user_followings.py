@@ -1,11 +1,11 @@
 from login import Login
+from login import from_json
 from login import ClientError
 from instagram_private_api import (ClientChallengeRequiredError,
                                    ClientCheckpointRequiredError,
                                    ClientSentryBlockError,
                                    ClientThrottledError
 )
-from login import from_json
 from get_info_by_username import Get_info_by_username
 from get_followings import Get_followings
 from follow_by_id import Follow_by_id
@@ -41,7 +41,7 @@ def Follow_user_followings(api,username,amount,set_do_like):
             return
         """
 
-        print("\nStart following {0} followers ...".format(user_info['username']))
+        print("\nStart following {0} followings ...".format(user_info['username']))
         sleep(3)
         
         sleep(random.randrange(60,70))
@@ -71,6 +71,7 @@ def Follow_user_followings(api,username,amount,set_do_like):
                                                 target_username=user_info['username'],
                                                 target_id=user_info['id']
                         )
+                    sleep(random.randrange(60,70))
 
         
         else:
@@ -80,9 +81,9 @@ def Follow_user_followings(api,username,amount,set_do_like):
                                         target_username=user_info['username'],
                                         target_id=user_info['id']
                         )
-    
-        sleep(random.randrange(60,70))
+            sleep(random.randrange(60,70))
 
+    
         counter = 0
         if followings:
 
