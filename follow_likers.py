@@ -218,17 +218,18 @@ def Follow_likers(api,username,num_of_posts,num_of_likers_each_post,set_do_like)
                         print("ClientThrottledError : ",err)
                         return
                     except ClientError as err:
-                        ClientErrorCounter = ClientErrorCounter + 1
                         if ClientErrorCounter == 6:
                             print("Reached maximum ClientError . Return")
                             return
                         if err.code == 400:
+                            ClientErrorCounter = ClientErrorCounter + 1
                             print("Bad Request: ",err)
                             sleep(random.randrange(60,70))
                         elif err.code == 404:
-                            print(err)
+                            print("User not found !")
                             sleep(random.randrange(60,70))
                         else:
+                            ClientErrorCounter = ClientErrorCounter + 1
                             print(err)
                             sleep(random.randrange(60,70))
                             

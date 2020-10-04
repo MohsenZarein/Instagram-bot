@@ -22,7 +22,7 @@ def Unfollow_Query(data):
 
             # Insert into unfollowed
             cursor.execute(insert_into_unfollowed_sql,data)
-            connection.commit
+            connection.commit()
 
             result = {
                 "status":"ok"
@@ -40,7 +40,7 @@ def Unfollow_Query(data):
 
                 # Insert into unfollowed
                 cursor.execute(insert_into_unfollowed_query,data)
-                connection.commit
+                connection.commit()
 
                 result = {
                     "status":"ok"
