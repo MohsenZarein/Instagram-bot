@@ -101,7 +101,7 @@ def Unfollow(api,amount):
                             print("Reached maximum ClientError . Return")
                             return
                         if err.code == 404:
-                            print("Couldn't find {0} in your followings . skipping ...".format(user['username']))
+                            print("User {0} not found !".format(user[2]))
                             data = (me['id'],me['username'],user[2],user[3])
                             res = Delete_from_followings(data)
                             if res['status'] == "ok":
