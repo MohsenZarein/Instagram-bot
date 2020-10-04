@@ -9,6 +9,7 @@ from get_info_by_username import Get_info_by_username
 
 from dbutils.get_followings_query import Get_followings_query
 from dbutils.unfollow_query import Unfollow_Query
+from dbutils.delete_from_followings import Delete_from_followings
 
 from dateutil import parser as Parser
 from datetime import datetime
@@ -96,17 +97,24 @@ def Unfollow(api,amount):
                         print("ClientThrottledError : ",err)
                         return     
                     except ClientError as err:
-                        ClientErrorCounter = ClientErrorCounter + 1
                         if ClientErrorCounter == 6:
                             print("Reached maximum ClientError . Return")
                             return
                         if err.code == 404:
                             print("Couldn't find {0} in your followings . skipping ...".format(user['username']))
+                            data = (me['id'],me['username'],user[2],user[3])
+                            res = Delete_from_followings(data)
+                            if res['status'] == "ok":
+                                pass
+                            else:
+                                print("Could not delete from followings")
                             sleep(random.randrange(70,80))
                         elif err.code == 400:
+                            ClientErrorCounter = ClientErrorCounter + 1
                             print("Bad Request : ",err)
                             sleep(random.randrange(70,80))
                         else:
+                            ClientErrorCounter = ClientErrorCounter + 1
                             print(err)
                             sleep(random.randrange(70,80))
                     except Exception as err:
