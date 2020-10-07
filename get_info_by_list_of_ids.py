@@ -1,5 +1,11 @@
 from login import Login
 from login import ClientError
+from instagram_private_api import (
+                                   ClientChallengeRequiredError,
+                                   ClientCheckpointRequiredError,
+                                   ClientSentryBlockError,
+                                   ClientThrottledError
+                                )   
 from get_info_by_username import Get_info_by_username
 from follow_by_id import Follow_by_id
 from like_by_id import Like_by_id
@@ -11,6 +17,7 @@ from dbutils.follow_query import Follow_Query
 
 from time import sleep
 from datetime import datetime
+from pathlib import  Path
 import argparse
 import random
 import os
@@ -18,10 +25,32 @@ import sys
 import json
 
 
+def path_handler():
+    cwd = os.getcwd()
+    try:
+        Path(cwd + '/LOGS/{0}'.format(username)).mkdir(parents=True, exist_ok=False)
+        dest_file_path = cwd + '/LOGS/{0}/info.json'.format(args.username)
+        return dest_file_path
+    except FileExistsError:
+        dest_file_path = cwd + '/LOGS/{0}/info.json'.format(args.username)
+        return dest_file_path
+
+
 def get_data_by_id(api,list_of_ids):
 
     if os.path.isfile(list_of_ids):
         path_for_list = os.path.abspath(list_of_ids)
+        previous_info = []
+        last_id = None
+        if os.path.isfile(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username)):
+            with open(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username),"r") as f:
+                previous_info = json.load(f)
+                if previous_info:
+                    last_id = previous_info[-1]["id"]
+                    print("last_id :",last_id)
+        else:
+            print("No previous info ...")
+            
     else:
         print("THERE IS NOT A FILE WITH '{0}' NAME IN CURRENT DIRECTORY".format(list_of_ids))
         sys.exit()
@@ -38,7 +67,18 @@ def get_data_by_id(api,list_of_ids):
         counter = 0
         try:
             
+            flag = False
+            if not last_id:
+                print("No last_id")
+                flag = True
             for id in ids:
+                if flag == False:
+                    if id == last_id:
+                        flag = True
+                        print("found last_id !!!")
+                        continue
+                    else:
+                        continue
                 try:
                     info = {}
                     res = api.user_info(id)
@@ -55,30 +95,69 @@ def get_data_by_id(api,list_of_ids):
                     DATA.append(info)
                     counter = counter + 1
                     
-                    sleep(random.randrange(3,5))
+                    sleep(1)
+
+                    if counter % 100 == 0:
+                        print("~15 min sleep ...")
+                        sleep(random.randrange(890,900))
                         
                 except KeyboardInterrupt:
                     print("KeyboardInterrupt !!!")
-                    with open(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username),'w',encoding='UTF-8') as fout:
-                        json.dump(DATA,fout,indent=4)
+                    with open(path_handler(),'w',encoding='UTF-8') as fout:
+                        FullDATA = previous_info + DATA
+                        json.dump(FullDATA,fout,indent=4)
                     
                     return
                 except Exception as err:
                     print(err)
-                    with open(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username),'w',encoding='UTF-8') as fout:
-                        json.dump(DATA,fout,indent=4)
+                    with open(path_handler(),'w',encoding='UTF-8') as fout:
+                        FullDATA = previous_info + DATA
+                        json.dump(FullDATA,fout,indent=4)
                     sleep(120)
 
                     
-            with open(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username),'w',encoding='UTF-8') as fout:
-                json.dump(DATA,fout,indent=4)
+            with open(path_handler(),'w',encoding='UTF-8') as fout:
+                FullDATA = previous_info + DATA
+                json.dump(FullDATA,fout,indent=4)
 
 
         except KeyboardInterrupt:
             print("KeyboardInterrupt !!!")
-            with open(os.getcwd() + '/LOGS/{0}/info.json'.format(args.username),'w',encoding='UTF-8') as fout:
-                json.dump(DATA,fout,indent=4)
+            with open(path_handler(),'w',encoding='UTF-8') as fout:
+                FullDATA = previous_info + DATA
+                json.dump(FullDATA,fout,indent=4)
             return
+        except ClientChallengeRequiredError as err:
+            print("ClientChallengeRequiredError : ",err)
+            with open(path_handler(),'w',encoding='UTF-8') as fout:
+                FullDATA = previous_info + DATA
+                json.dump(FullDATA,fout,indent=4)
+            return
+        except ClientCheckpointRequiredError as err:
+            print("ClientCheckpointRequiredError : ",err)
+            with open(path_handler(),'w',encoding='UTF-8') as fout:
+                FullDATA = previous_info + DATA
+                json.dump(FullDATA,fout,indent=4)
+            return
+        except ClientSentryBlockError as err:
+            print("ClientSentryBlockError : ",err)
+            with open(path_handler(),'w',encoding='UTF-8') as fout:
+                FullDATA = previous_info + DATA
+                json.dump(FullDATA,fout,indent=4)
+            return
+        except ClientThrottledError as err:
+            print("ClientThrottledError : ",err)
+            with open(path_handler(),'w',encoding='UTF-8') as fout:
+                FullDATA = previous_info + DATA
+                json.dump(FullDATA,fout,indent=4)
+            return
+        except ClientError as err:
+            print(err)
+            with open(path_handler(),'w',encoding='UTF-8') as fout:
+                FullDATA = previous_info + DATA
+                json.dump(FullDATA,fout,indent=4)
+            return
+
 
 
 if __name__ == "__main__":
