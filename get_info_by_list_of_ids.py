@@ -28,7 +28,7 @@ import json
 def path_handler():
     cwd = os.getcwd()
     try:
-        Path(cwd + '/LOGS/{0}'.format(username)).mkdir(parents=True, exist_ok=False)
+        Path(cwd + '/LOGS/{0}'.format(args.username)).mkdir(parents=True, exist_ok=False)
         dest_file_path = cwd + '/LOGS/{0}/info.json'.format(args.username)
         return dest_file_path
     except FileExistsError:
