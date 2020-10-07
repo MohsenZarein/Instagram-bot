@@ -124,7 +124,7 @@ def get_data_by_id(api,list_of_ids):
                     with open(path_handler(),'w',encoding='UTF-8') as fout:
                         FullDATA = previous_info + DATA
                         json.dump(FullDATA,fout,indent=4)
-                    return
+                    sleep(120)
                 except ClientError as err:
                     print(err)
                     with open(path_handler(),'w',encoding='UTF-8') as fout:
