@@ -100,13 +100,42 @@ def get_data_by_id(api,list_of_ids):
                     if counter % 100 == 0:
                         print("~15 min sleep ...")
                         sleep(random.randrange(890,900))
-                        
+
+                except ClientChallengeRequiredError as err:
+                    print("ClientChallengeRequiredError : ",err)
+                    with open(path_handler(),'w',encoding='UTF-8') as fout:
+                        FullDATA = previous_info + DATA
+                        json.dump(FullDATA,fout,indent=4)
+                    return
+                except ClientCheckpointRequiredError as err:
+                    print("ClientCheckpointRequiredError : ",err)
+                    with open(path_handler(),'w',encoding='UTF-8') as fout:
+                        FullDATA = previous_info + DATA
+                        json.dump(FullDATA,fout,indent=4)
+                    return
+                except ClientSentryBlockError as err:
+                    print("ClientSentryBlockError : ",err)
+                    with open(path_handler(),'w',encoding='UTF-8') as fout:
+                        FullDATA = previous_info + DATA
+                        json.dump(FullDATA,fout,indent=4)
+                    return
+                except ClientThrottledError as err:
+                    print("ClientThrottledError : ",err)
+                    with open(path_handler(),'w',encoding='UTF-8') as fout:
+                        FullDATA = previous_info + DATA
+                        json.dump(FullDATA,fout,indent=4)
+                    return
+                except ClientError as err:
+                    print(err)
+                    with open(path_handler(),'w',encoding='UTF-8') as fout:
+                        FullDATA = previous_info + DATA
+                        json.dump(FullDATA,fout,indent=4)
+                    sleep(120)    
                 except KeyboardInterrupt:
                     print("KeyboardInterrupt !!!")
                     with open(path_handler(),'w',encoding='UTF-8') as fout:
                         FullDATA = previous_info + DATA
                         json.dump(FullDATA,fout,indent=4)
-                    
                     return
                 except Exception as err:
                     print(err)
@@ -127,36 +156,7 @@ def get_data_by_id(api,list_of_ids):
                 FullDATA = previous_info + DATA
                 json.dump(FullDATA,fout,indent=4)
             return
-        except ClientChallengeRequiredError as err:
-            print("ClientChallengeRequiredError : ",err)
-            with open(path_handler(),'w',encoding='UTF-8') as fout:
-                FullDATA = previous_info + DATA
-                json.dump(FullDATA,fout,indent=4)
-            return
-        except ClientCheckpointRequiredError as err:
-            print("ClientCheckpointRequiredError : ",err)
-            with open(path_handler(),'w',encoding='UTF-8') as fout:
-                FullDATA = previous_info + DATA
-                json.dump(FullDATA,fout,indent=4)
-            return
-        except ClientSentryBlockError as err:
-            print("ClientSentryBlockError : ",err)
-            with open(path_handler(),'w',encoding='UTF-8') as fout:
-                FullDATA = previous_info + DATA
-                json.dump(FullDATA,fout,indent=4)
-            return
-        except ClientThrottledError as err:
-            print("ClientThrottledError : ",err)
-            with open(path_handler(),'w',encoding='UTF-8') as fout:
-                FullDATA = previous_info + DATA
-                json.dump(FullDATA,fout,indent=4)
-            return
-        except ClientError as err:
-            print(err)
-            with open(path_handler(),'w',encoding='UTF-8') as fout:
-                FullDATA = previous_info + DATA
-                json.dump(FullDATA,fout,indent=4)
-            return
+        
 
 
 
