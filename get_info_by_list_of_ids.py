@@ -73,7 +73,7 @@ def get_data_by_id(api,list_of_ids):
                 flag = True
             for id in ids:
                 if flag == False:
-                    if id == last_id:
+                    if str(id) == str(last_id):
                         flag = True
                         print("found last_id !!!")
                         continue
