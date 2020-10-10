@@ -67,6 +67,7 @@ def get_data_by_id(api,list_of_ids):
         counter = 0
         try:
             
+            ThrottledErrorCounter = 0
             flag = False
             if not last_id:
                 print("No last_id")
@@ -95,11 +96,7 @@ def get_data_by_id(api,list_of_ids):
                     DATA.append(info)
                     counter = counter + 1
                     
-                    sleep(1)
-
-                    if counter % 100 == 0:
-                        print("~15 min sleep ...")
-                        sleep(random.randrange(890,900))
+                    sleep(random.randrange(20,24))
 
                 except ClientChallengeRequiredError as err:
                     print("ClientChallengeRequiredError : ",err)
@@ -124,13 +121,17 @@ def get_data_by_id(api,list_of_ids):
                     with open(path_handler(),'w',encoding='UTF-8') as fout:
                         FullDATA = previous_info + DATA
                         json.dump(FullDATA,fout,indent=4)
+                    ThrottledErrorCounter = ThrottledErrorCounter + 1
+                    if ThrottledErrorCounter == 10:
+                        print("Reached maximun amount of ThrottledError !")
+                        return
                     sleep(120)
                 except ClientError as err:
                     print(err)
                     with open(path_handler(),'w',encoding='UTF-8') as fout:
                         FullDATA = previous_info + DATA
                         json.dump(FullDATA,fout,indent=4)
-                    sleep(120)    
+                    sleep(50)    
                 except KeyboardInterrupt:
                     print("KeyboardInterrupt !!!")
                     with open(path_handler(),'w',encoding='UTF-8') as fout:
@@ -142,7 +143,7 @@ def get_data_by_id(api,list_of_ids):
                     with open(path_handler(),'w',encoding='UTF-8') as fout:
                         FullDATA = previous_info + DATA
                         json.dump(FullDATA,fout,indent=4)
-                    sleep(120)
+                    sleep(5)
 
                     
             with open(path_handler(),'w',encoding='UTF-8') as fout:
