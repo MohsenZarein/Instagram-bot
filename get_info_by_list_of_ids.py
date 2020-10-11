@@ -96,7 +96,11 @@ def get_data_by_id(api,list_of_ids):
                     DATA.append(info)
                     counter = counter + 1
                     
-                    sleep(random.randrange(20,24))
+                    sleep(1)
+
+                    if counter % 100 == 0:
+                        print("~15 min sleep!")
+                        sleep(random.randrange(870,910))
 
                 except ClientChallengeRequiredError as err:
                     print("ClientChallengeRequiredError : ",err)
