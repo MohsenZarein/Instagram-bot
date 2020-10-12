@@ -109,7 +109,7 @@ def Follow_by_username(api , username , set_do_like):
                 return
 
         elif res1['status'] == "error":
-            print("You have already unfollowed this user once")
+            print("You have already unfollowed/followed this user once")
             return
 
         else:
