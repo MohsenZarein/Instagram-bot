@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 from login import Login
 from login import to_json
 from login import ClientError

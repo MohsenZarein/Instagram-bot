@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 from login import Login
 from login import ClientError
 from instagram_private_api import (ClientChallengeRequiredError,
@@ -5,70 +7,100 @@ from instagram_private_api import (ClientChallengeRequiredError,
                                    ClientSentryBlockError,
                                    ClientThrottledError
 )
+from get_info_by_username import Get_info_by_username
 from follow_by_id import Follow_by_id
 from like_by_id import Like_by_id
-from get_info_by_username import Get_info_by_username
 
 from dbutils.check_for_follow_query import Check_for_follow_query
 from dbutils.get_followings_query import Get_followings_query
 from dbutils.follow_query import Follow_Query
 
-from datetime import datetime
+
 from time import sleep
-import random
+from datetime import datetime
 import argparse
+import random
+import os
+import sys
 
 
-def Follow_suggested_users(api,amount,set_do_like):
+
+def Follow_by_list(api,list_of_users,amount,set_do_like):
+
+    if os.path.isfile(list_of_users):
+        path_for_list = os.path.abspath(list_of_users)
+    else:
+        print("THERE IS NOT A FILE WITH '{0}' NAME IN CURRENT DIRECTORY".format(list_of_users))
+        sys.exit()
     
-    print("\nStart following suggested users ...")
-    sleep(3)
-
     try:
-        data = api.friendships_pending()
-        if data:
-            suggested_users = data['suggested_users']['suggestions']
-        else:
-            print("Could not get suggested users !")
-            return
-    except ClientError as err:
-        print(err)
-        return
-    except Exception as err:
-        print(err)
-        return
+        with open(path_for_list , 'r') as fin:
+            content = fin.readlines()
+            if content:
+                users = []
+                for i in content:
+                    users.append(i.replace('\n',''))
+            else:
+                print('USERS FILE IS EMPTY !')
+                sys.exit()
+        
+    except FileNotFoundError:
+        print("SUCH FILE DOES NOT EXIST !")
+        sys.exit()
+    except IOError:
+        print("COULD NOT READ THE FILE !")
+        sys.exit()
 
-    sleep(random.randrange(60,70))
+
+    print("\nStart following by list ...")
 
     me = Get_info_by_username(
                               api=api,
                               username=args.username
         )
 
+    if not me:
+        print('Encountered error while getting your info')
+        return
+
+    sleep(random.randrange(60,70))
+
     counter = 0
-    if suggested_users:
+    if users:
 
         my_followings = Get_followings_query(me['id'],me['username'])
 
         ClientErrorCounter = 0
-        for user in suggested_users:
-    
+        for username in users:
+            
             if counter >= amount :
-                print("\nFinished following suggested users ...\n")
+                print("\nFinished following users in a list ...\n")
+                sleep(5)
                 break
+            
+            user = Get_info_by_username(
+                                        api=api,
+                                        username=username
+                    )
+
+            if not user:
+                print('Encountered error while getting user info')
+                sleep(random.randrange(30,40))
+                continue
+
+            sleep(random.randrange(60,70))
 
             try:
-                data = (me['id'],me['username'],user['user']['username'],user['user']['pk'],)
+                data = (me['id'],me['username'],user['username'],user['id'],)
                 res1 = Check_for_follow_query(data)
 
                 if res1['status'] == "ok":
-
 
                     if  my_followings['status'] == "ok":
                         
                         flag = True
                         for following in my_followings['followings']:
-                            if str(user['user']['pk']) == following[3] :
+                            if user['id'] == following[3] :
                                 flag = False
                                 break
 
@@ -77,12 +109,12 @@ def Follow_suggested_users(api,amount,set_do_like):
                             continue
                         else:
                             print("\n")
-                            print('Following   [[ username:{0}  full_name:{1} ]] ...'.format(user['user']['username'],user['user']['full_name']))
+                            print('Following [ username: {0}  full_name: {1} ] ...'.format(user.get('username'),user.get('full_name')))
                             sleep(5)
 
                             status = Follow_by_id(
-                                                 api=api,
-                                                 id=user['user']['pk']
+                                                  api=api,
+                                                  id=user.get('id')
                                     )
                     
                             if status == True:
@@ -90,7 +122,12 @@ def Follow_suggested_users(api,amount,set_do_like):
                                 counter = counter + 1
                                 print("Followed !")
 
-                                data = (me['id'],me['username'],user['user']['username'],user['user']['pk'],str(datetime.now()))
+                                if counter % 5 == 0:
+                                    sleep(random.randrange(60,70))
+                                else:
+                                    sleep(5)
+
+                                data = (me['id'],me['username'],user['username'],user['id'],str(datetime.now()))
                                 res2 = Follow_Query(data)
 
                                 if res2["status"] == "ok":
@@ -100,25 +137,23 @@ def Follow_suggested_users(api,amount,set_do_like):
                                     print("could not save to database !")
                                     sleep(5)
 
-                                if counter % 5 == 0:
-                                    sleep(random.randrange(600,620))
-                                else:
-                                    sleep(random.randrange(60,70))
+                                print("\n")
+                                sleep(random.randrange(60,70))
 
                                 if set_do_like == True:
 
                                     Like_by_id(
-                                                api=api,
-                                                id=user['user']['pk'],
+                                                api=api, 
+                                                id=user.get('id'),
                                                 amount=1,
-                                                is_private=user['user']['is_private']
+                                                is_private=user.get('is_private')
                                     )
 
                                     sleep(random.randrange(60,70))
                                     
                             else:
 
-                                print('Could not follow [ username:{0}  full_name:{1} ] !'.format(user['user']['username'],user['user']['full_name']))
+                                print('Could not follow [ username: {0}  full_name: {1} ] !'.format(user.get('username'),user.get('full_name')))
                                 print("\n")
                                 sleep(random.randrange(60,70))
                     
@@ -127,7 +162,7 @@ def Follow_suggested_users(api,amount,set_do_like):
                         return
 
                 elif res1['status'] == "error":
-                    #You have already unfollowed this user once 
+                    #You have already unfollowed this user once
                     continue
 
                 else:
@@ -149,27 +184,27 @@ def Follow_suggested_users(api,amount,set_do_like):
                 print("ClientThrottledError : ",err)
                 return
             except ClientError as err:
+                ClientErrorCounter = ClientErrorCounter + 1
                 if ClientErrorCounter == 6:
                     print("Reached maximum ClientError . Return")
                     return
                 if err.code == 400:
-                    ClientErrorCounter = ClientErrorCounter + 1
                     print("Bad Request: ",err)
                     sleep(random.randrange(60,70))
                 elif err.code == 404:
-                    print("User not found !")
+                    print(err)
                     sleep(random.randrange(60,70))
                 else:
-                    ClientErrorCounter = ClientErrorCounter + 1
                     print(err)
                     sleep(random.randrange(60,70))
                     
             except Exception as err:
-                print("None client error: ",err)
-                
+                print(err)
 
+        print("\nFinished following users in a list ...\n")
+    
     else:
-        print("You dont have any suggestions right now")
+        print("Could not get any user . list is empty ...")
 
 
 
@@ -181,6 +216,7 @@ if __name__ == "__main__":
     parser.add_argument('-settings', '--settings', dest='settings_file_path', type=str, required=True)
     parser.add_argument('-u', '--username', dest='username', type=str, required=True)
     parser.add_argument('-p', '--password', dest='password', type=str, required=True)
+    parser.add_argument('-l', '--list', dest='list', type=str, required=True)
     parser.add_argument('-a', '--amount', dest='amount', type=int, required=True)
     parser.add_argument('-set_do_like', '--set_do_like', action='store_true')
 
@@ -197,8 +233,9 @@ if __name__ == "__main__":
                 password=args.password
     )
 
-    Follow_suggested_users(
-                           api=api,
-                           amount=args.amount,
-                           set_do_like=set_do_like
+    Follow_by_list(
+                   api=api,
+                   list_of_users=args.list,
+                   amount=args.amount,
+                   set_do_like=set_do_like
     )

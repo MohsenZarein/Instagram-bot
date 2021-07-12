@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 from login import Login
 from login import ClientError
 from get_info_by_username import Get_info_by_username

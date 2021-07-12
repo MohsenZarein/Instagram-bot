@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 from login import Login
 from login import from_json
 from login import ClientError
@@ -7,7 +9,7 @@ from instagram_private_api import (ClientChallengeRequiredError,
                                    ClientThrottledError
 )
 from get_info_by_username import Get_info_by_username
-from get_followings import Get_followings
+from get_followers import Get_followers
 from follow_by_id import Follow_by_id
 from like_by_id import Like_by_id
 
@@ -22,7 +24,8 @@ import random
 import json
 import os
 
-def Follow_user_followings(api,username,amount,set_do_like):
+
+def Follow_user_followers(api,username,amount,set_do_like):
 
     try:
 
@@ -35,15 +38,9 @@ def Follow_user_followings(api,username,amount,set_do_like):
             print('Encountered error while getting user info')
             return
 
-        """
-        if user_info['is_private'] == True:
-            print("You can't get {0} followings , cause the account is private".format(user_info['username']))
-            return
-        """
-
-        print("\nStart following {0} followings ...".format(user_info['username']))
+        print("\nStart following {0} followers ...".format(user_info['username']))
         sleep(3)
-        
+
         sleep(random.randrange(60,70))
 
         me = Get_info_by_username(
@@ -54,28 +51,29 @@ def Follow_user_followings(api,username,amount,set_do_like):
         if not me:
             print('Encountered error while getting your info')
             return
-
+        
         sleep(random.randrange(60,70))
 
-        followers_file_path = os.getcwd() + '/LOGS/{0}/{1}-followings.json'.format(args.username,user_info['username'])
+        followers_file_path = os.getcwd() + '/LOGS/{0}/{1}-followers.json'.format(args.username,user_info['username'])
 
         if os.path.isfile(followers_file_path):
 
             with open(followers_file_path,'r') as fin:
                 try:
-                    followings = json.load(fin,object_hook=from_json)
+                    followers = json.load(fin,object_hook=from_json)
                 except Exception:
-                    followings = Get_followings(
-                                                api=api,
-                                                username=args.username,
-                                                target_username=user_info['username'],
-                                                target_id=user_info['id']
+                    followers = Get_followers(
+                                            api=api,
+                                            username=args.username,
+                                            target_username=user_info['username'],
+                                            target_id=user_info['id']
                         )
+
                     sleep(random.randrange(60,70))
 
         
         else:
-            followings = Get_followings(
+            followers = Get_followers(
                                         api=api,
                                         username=args.username,
                                         target_username=user_info['username'],
@@ -83,16 +81,16 @@ def Follow_user_followings(api,username,amount,set_do_like):
                         )
             sleep(random.randrange(60,70))
 
-    
+
         counter = 0
-        if followings:
+        if followers:
 
             my_followings = Get_followings_query(me['id'],me['username'])
 
             ClientErrorCounter = 0
-            for user in followings:
+            for user in followers:
                 if counter >= amount :
-                    print("\nFinished following user's followings ...\n")
+                    print("\nFinished following users's followers ...\n")
                     break
 
                 try:
@@ -141,6 +139,7 @@ def Follow_user_followings(api,username,amount,set_do_like):
                                         sleep(random.randrange(600,620))
                                     else:
                                         sleep(random.randrange(60,70))
+                                        
 
                                     if set_do_like == True:
 
@@ -172,7 +171,7 @@ def Follow_user_followings(api,username,amount,set_do_like):
                         print("db error . could not check for follow ")
                         print("\n")
                         sleep(5)
-
+                
                 except ClientChallengeRequiredError as err:
                     print("ClientChallengeRequiredError : ",err)
                     return
@@ -203,6 +202,7 @@ def Follow_user_followings(api,username,amount,set_do_like):
                         
                 except Exception as err:
                     print("None client error: ",err)
+                    
         
         else:
             print("Could not get any user . list is empty ...")
@@ -220,7 +220,9 @@ def Follow_user_followings(api,username,amount,set_do_like):
     except ClientThrottledError as err:
         print("ClientThrottledError : ",err)
         return
-
+    except Exception as err:
+        print(err)
+        return
 
 if __name__ == "__main__":
 
@@ -247,9 +249,10 @@ if __name__ == "__main__":
                 password=args.password
     )
 
-    Follow_user_followings(
+    Follow_user_followers(
                           api=api,
                           username=args.target_username,
                           amount=args.amount,
                           set_do_like=set_do_like
     )
+
